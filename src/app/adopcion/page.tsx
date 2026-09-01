@@ -1,42 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-export default function AdopcionPage() {
+function FormularioAdopcion() {
   const [enviado, setEnviado] = useState(false);
 
   const searchParams = useSearchParams();
   const mascota = searchParams.get("mascota") || "Luna";
 
   async function enviarSolicitud(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
+    event.preventDefault();
 
-  const form = event.currentTarget;
-  const formData = new FormData(form);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
 
-  const { error } = await supabase
-    .from("solicitudes_adopcion")
-    .insert({
-      nombre: String(formData.get("nombre") ?? ""),
-      correo: String(formData.get("correo") ?? ""),
-      telefono: String(formData.get("telefono") ?? ""),
-      mascota: String(formData.get("mascota") ?? ""),
-      vivienda: String(formData.get("vivienda") ?? ""),
-      motivo: String(formData.get("motivo") ?? ""),
-    });
+    const { error } = await supabase
+      .from("solicitudes_adopcion")
+      .insert({
+        nombre: String(formData.get("nombre") ?? ""),
+        correo: String(formData.get("correo") ?? ""),
+        telefono: String(formData.get("telefono") ?? ""),
+        mascota: String(formData.get("mascota") ?? ""),
+        vivienda: String(formData.get("vivienda") ?? ""),
+        motivo: String(formData.get("motivo") ?? ""),
+      });
 
-  if (error) {
-  console.error("ERROR SUPABASE:", JSON.stringify(error, null, 2));
-  alert(
-    `Error de Supabase:\nCódigo: ${error.code}\nMensaje: ${error.message}`
-  );
-  return;
-}
+    if (error) {
+      console.error("ERROR SUPABASE:", JSON.stringify(error, null, 2));
 
-  setEnviado(true);
-}
+      alert(
+        `Error de Supabase:\nCódigo: ${error.code}\nMensaje: ${error.message}`
+      );
+
+      return;
+    }
+
+    setEnviado(true);
+  }
 
   return (
     <main className="min-h-screen bg-blue-50 px-6 py-12">
@@ -70,7 +72,10 @@ export default function AdopcionPage() {
         {/* MENSAJE DE ÉXITO */}
         {enviado && (
           <div className="mt-8 rounded-2xl bg-green-100 p-6 text-center">
-            <div className="text-4xl">🎉</div>
+
+            <div className="text-4xl">
+              🎉
+            </div>
 
             <h2 className="mt-2 text-xl font-bold text-green-700">
               ¡Solicitud enviada correctamente!
@@ -86,6 +91,7 @@ export default function AdopcionPage() {
             >
               Volver al inicio
             </a>
+
           </div>
         )}
 
@@ -168,9 +174,17 @@ export default function AdopcionPage() {
                 defaultValue={mascota}
                 className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-blue-600"
               >
-                <option value="Luna">Luna 🐱</option>
-                <option value="Max">Max 🐶</option>
-                <option value="Toby">Toby 🐶</option>
+                <option value="Luna">
+                  Luna 🐱
+                </option>
+
+                <option value="Max">
+                  Max 🐶
+                </option>
+
+                <option value="Toby">
+                  Toby 🐶
+                </option>
               </select>
             </div>
 
@@ -243,3 +257,24 @@ export default function AdopcionPage() {
   );
 }
 
+export default function AdopcionPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-blue-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-5xl mb-4">
+              🐾
+            </div>
+
+            <p className="text-gray-600">
+              Cargando formulario de adopción...
+            </p>
+          </div>
+        </main>
+      }
+    >
+      <FormularioAdopcion />
+    </Suspense>
+  );
+}
