@@ -1,4 +1,42 @@
+
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+
 export default function Home() {
+  const router = useRouter();
+  const [usuario, setUsuario] = useState<any>(null);
+
+  useEffect(() => {
+    async function obtenerUsuario() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.replace("/login");
+        return;
+      }
+
+      setUsuario(user);
+    }
+
+    obtenerUsuario();
+  }, [router]);
+
+  if (!usuario) {
+    return (
+      <main className="min-h-screen bg-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-5xl mb-4">🐾</div>
+          <p className="text-gray-600">Cargando AdoptaPet...</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-blue-50">
 
@@ -44,13 +82,25 @@ export default function Home() {
             </a>
           </nav>
 
-          <button className="rounded-full bg-blue-600 px-5 py-2 text-white hover:bg-blue-700">
-            Iniciar sesión
-          </button>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-sm font-medium text-gray-700 sm:block">
+              👤 {usuario.email}
+            </span>
+
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut();
+                setUsuario(null);
+                router.replace("/login");
+              }}
+              className="rounded-full bg-red-500 px-5 py-2 text-white hover:bg-red-600"
+            >
+              Cerrar sesión
+            </button>
+          </div>
 
         </div>
       </header>
-
 
       {/* PRESENTACIÓN */}
       <section
@@ -76,18 +126,23 @@ export default function Home() {
 
           <div className="mt-8 flex gap-4">
 
-            <button className="rounded-full bg-blue-600 px-7 py-3 font-semibold text-white hover:bg-blue-700">
+            <a
+              href="#mascotas"
+              className="rounded-full bg-blue-600 px-7 py-3 font-semibold text-white hover:bg-blue-700"
+            >
               Adoptar ahora 🐾
-            </button>
+            </a>
 
-            <button className="rounded-full border-2 border-blue-600 px-7 py-3 font-semibold text-blue-600 hover:bg-blue-100">
+            <a
+              href="#nosotros"
+              className="rounded-full border-2 border-blue-600 px-7 py-3 font-semibold text-blue-600 hover:bg-blue-100"
+            >
               Conocer más
-            </button>
+            </a>
 
           </div>
 
         </div>
-
 
         {/* TARJETA DE BIENVENIDA */}
         <div className="rounded-3xl bg-white p-10 text-center shadow-lg">
@@ -142,7 +197,6 @@ export default function Home() {
 
       </section>
 
-
       {/* MASCOTAS */}
       <section
         id="mascotas"
@@ -168,10 +222,8 @@ export default function Home() {
 
           </div>
 
-
           {/* TARJETAS */}
           <div className="mt-10 grid gap-8 md:grid-cols-3">
-
 
             {/* MAX */}
             <div className="overflow-hidden rounded-3xl bg-white shadow-md transition hover:shadow-xl">
@@ -205,16 +257,15 @@ export default function Home() {
                 </p>
 
                 <a
-  href="/mascotas/max"
-  className="mt-6 block w-full rounded-full bg-blue-600 py-3 text-center font-semibold text-white hover:bg-blue-700"
->
-  Ver perfil
-</a>
+                  href="/mascotas/max"
+                  className="mt-6 block w-full rounded-full bg-blue-600 py-3 text-center font-semibold text-white hover:bg-blue-700"
+                >
+                  Ver perfil
+                </a>
 
               </div>
 
             </div>
-
 
             {/* LUNA */}
             <div className="overflow-hidden rounded-3xl bg-white shadow-md transition hover:shadow-xl">
@@ -258,7 +309,6 @@ export default function Home() {
 
             </div>
 
-
             {/* TOBY */}
             <div className="overflow-hidden rounded-3xl bg-white shadow-md transition hover:shadow-xl">
 
@@ -291,11 +341,11 @@ export default function Home() {
                 </p>
 
                 <a
-  href="/mascotas/toby"
-  className="mt-6 block w-full rounded-full bg-blue-600 py-3 text-center font-semibold text-white hover:bg-blue-700"
->
-  Ver perfil
-</a>
+                  href="/mascotas/toby"
+                  className="mt-6 block w-full rounded-full bg-blue-600 py-3 text-center font-semibold text-white hover:bg-blue-700"
+                >
+                  Ver perfil
+                </a>
 
               </div>
 
@@ -310,5 +360,4 @@ export default function Home() {
     </main>
   );
 }
-
 

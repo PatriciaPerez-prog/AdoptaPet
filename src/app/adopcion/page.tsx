@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function AdopcionPage() {
   const [enviado, setEnviado] = useState(false);
@@ -9,10 +10,33 @@ export default function AdopcionPage() {
   const searchParams = useSearchParams();
   const mascota = searchParams.get("mascota") || "Luna";
 
-  function enviarSolicitud(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setEnviado(true);
-  }
+  async function enviarSolicitud(event: React.FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+
+  const { error } = await supabase
+    .from("solicitudes_adopcion")
+    .insert({
+      nombre: String(formData.get("nombre") ?? ""),
+      correo: String(formData.get("correo") ?? ""),
+      telefono: String(formData.get("telefono") ?? ""),
+      mascota: String(formData.get("mascota") ?? ""),
+      vivienda: String(formData.get("vivienda") ?? ""),
+      motivo: String(formData.get("motivo") ?? ""),
+    });
+
+  if (error) {
+  console.error("ERROR SUPABASE:", JSON.stringify(error, null, 2));
+  alert(
+    `Error de Supabase:\nCódigo: ${error.code}\nMensaje: ${error.message}`
+  );
+  return;
+}
+
+  setEnviado(true);
+}
 
   return (
     <main className="min-h-screen bg-blue-50 px-6 py-12">
