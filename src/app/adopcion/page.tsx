@@ -1,14 +1,11 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-function FormularioAdopcion() {
+export default function AdopcionPage() {
   const [enviado, setEnviado] = useState(false);
-
-  const searchParams = useSearchParams();
-  const mascota = searchParams.get("mascota") || "Luna";
+  const [mascota, setMascota] = useState("Luna");
 
   async function enviarSolicitud(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -54,7 +51,6 @@ function FormularioAdopcion() {
 
         {/* ENCABEZADO */}
         <div className="mt-8 text-center">
-
           <div className="text-5xl">
             🐾
           </div>
@@ -66,13 +62,11 @@ function FormularioAdopcion() {
           <p className="mt-3 text-gray-600">
             Cuéntanos un poco sobre ti para comenzar el proceso de adopción.
           </p>
-
         </div>
 
         {/* MENSAJE DE ÉXITO */}
         {enviado && (
           <div className="mt-8 rounded-2xl bg-green-100 p-6 text-center">
-
             <div className="text-4xl">
               🎉
             </div>
@@ -91,7 +85,6 @@ function FormularioAdopcion() {
             >
               Volver al inicio
             </a>
-
           </div>
         )}
 
@@ -171,7 +164,8 @@ function FormularioAdopcion() {
               <select
                 id="mascota"
                 name="mascota"
-                defaultValue={mascota}
+                value={mascota}
+                onChange={(event) => setMascota(event.target.value)}
                 className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-blue-600"
               >
                 <option value="Luna">
@@ -254,27 +248,5 @@ function FormularioAdopcion() {
 
       </div>
     </main>
-  );
-}
-
-export default function AdopcionPage() {
-  return (
-    <Suspense
-      fallback={
-        <main className="min-h-screen bg-blue-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-5xl mb-4">
-              🐾
-            </div>
-
-            <p className="text-gray-600">
-              Cargando formulario de adopción...
-            </p>
-          </div>
-        </main>
-      }
-    >
-      <FormularioAdopcion />
-    </Suspense>
   );
 }
