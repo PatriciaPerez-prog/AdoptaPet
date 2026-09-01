@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🐾 AdoptaPet
 
-## Getting Started
+## 📌 Descripción
 
-First, run the development server:
+**AdoptaPet** es una aplicación web desarrollada para facilitar el proceso de adopción responsable de mascotas.
+
+El proyecto permite visualizar diferentes mascotas disponibles para adopción, consultar información sobre cada una y enviar una solicitud de adopción mediante un formulario.
+
+El objetivo principal es crear una plataforma sencilla, amigable y fácil de utilizar para conectar a personas interesadas en adoptar con mascotas que necesitan un hogar.
+
+## 🎯 Objetivo del proyecto
+
+Desarrollar una aplicación web que permita presentar mascotas disponibles para adopción y facilitar el registro de solicitudes de personas interesadas en brindarles un hogar.
+
+## 🐶 Funcionalidades
+
+* 🏠 Página principal de AdoptaPet.
+* 🐾 Visualización de mascotas disponibles.
+* 🐶 Perfiles individuales de las mascotas.
+* 📷 Fotografías de Max, Luna y Toby.
+* ❤️ Botón para iniciar el proceso de adopción.
+* 📝 Formulario de solicitud de adopción.
+* 👤 Registro del nombre del solicitante.
+* 📧 Registro del correo electrónico.
+* 📱 Registro del número de teléfono.
+* 🏠 Selección del tipo de vivienda.
+* 💭 Registro del motivo de adopción.
+* 🐾 Selección automática de la mascota desde su perfil.
+* 🎉 Confirmación después de enviar la solicitud.
+
+## 💻 Tecnologías utilizadas
+
+* **Next.js**
+* **React**
+* **TypeScript**
+* **Tailwind CSS**
+* **Git**
+* **GitHub**
+
+## 📂 Estructura principal
+
+```text
+adoptapet/
+│
+├── public/
+│   ├── luna1.png
+│   ├── max.jpg
+│   └── toby1.jpeg
+│
+├── src/
+│   └── app/
+│       ├── adopcion/
+│       │   └── page.tsx
+│       │
+│       ├── mascotas/
+│       │   ├── luna/
+│       │   ├── max/
+│       │   └── toby/
+│       │
+│       └── page.tsx
+│
+├── package.json
+├── README.md
+└── ...
+```
+
+## ⚙️ Instalación y ejecución
+
+Para ejecutar el proyecto de manera local, primero se deben instalar las dependencias:
+
+```bash
+npm install
+```
+
+Después se inicia el servidor de desarrollo:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Finalmente, se puede abrir el proyecto desde el navegador en:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🐾 Mascotas disponibles
 
-## Learn More
+Actualmente el proyecto presenta tres mascotas:
 
-To learn more about Next.js, take a look at the following resources:
+| Mascota | Tipo     |
+| ------- | -------- |
+| Max     | 🐶 Perro |
+| Luna    | 🐱 Gata  |
+| Toby    | 🐶 Perro |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Cada mascota cuenta con su propio perfil y un botón para iniciar el proceso de adopción.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## ❤️ Proceso de adopción
 
-## Deploy on Vercel
+El usuario puede ingresar al perfil de una mascota y seleccionar la opción **"Quiero adoptar"**.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+El sistema lo dirige al formulario de adopción y selecciona automáticamente la mascota correspondiente.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Después de completar los datos requeridos, el usuario puede enviar la solicitud y recibe un mensaje de confirmación.
+
+## 👩‍💻 Proyecto académico
+
+**AdoptaPet** fue desarrollado como un proyecto académico para aplicar conocimientos de desarrollo web, utilizando tecnologías modernas para la creación de interfaces y navegación entre diferentes páginas.
+
+---
+
+🐾 **AdoptaPet — Una oportunidad para encontrar un nuevo hogar.**
