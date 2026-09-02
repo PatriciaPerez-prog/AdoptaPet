@@ -38,12 +38,23 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // No bloquear las páginas de autenticación
-  if (pathname === "/login" || pathname === "/registro") {
+  // Páginas públicas
+  const paginasPublicas = [
+    "/",
+    "/login",
+    "/registro",
+    "/mascotas",
+    "/mascotas/max",
+    "/mascotas/luna",
+    "/mascotas/toby",
+  ];
+
+  // Si la página es pública, dejar entrar a cualquier persona
+  if (paginasPublicas.includes(pathname)) {
     return response;
   }
 
-  // Si no hay usuario, enviar al login
+  // Si intenta acceder a una página protegida sin iniciar sesión
   if (!user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -53,6 +64,9 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
+    "/login",
+    "/registro",
     "/mascotas/:path*",
     "/adopcion/:path*",
     "/nosotros/:path*",
