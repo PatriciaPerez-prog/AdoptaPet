@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -5,32 +6,49 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
-    const router = useRouter();
+  const router = useRouter();
+
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [cargando, setCargando] = useState(false);
 
-  async function iniciarSesion(event: React.FormEvent<HTMLFormElement>) {
+  async function iniciarSesion(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
-    setMensaje("");
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: correo,
-      password: password,
-    });
+    setMensaje("");
+    setCargando(true);
+
+    const { data, error } =
+      await supabase.auth.signInWithPassword({
+        email: correo,
+        password: password,
+      });
 
     if (error) {
-  console.error("ERROR LOGIN:", error);
-  setMensaje(`Error: ${error.message}`);
-  return;
-}
+      console.error("ERROR LOGIN:", error);
+      setMensaje(`Error: ${error.message}`);
+      setCargando(false);
+      return;
+    }
 
-router.push("/");
+    console.log("LOGIN CORRECTO:", data.user?.email);
+
+    // Actualizamos la sesión antes de cambiar de página
+    router.refresh();
+
+    // Esperamos un momento para que Next.js/Supabase actualicen la sesión
+    setTimeout(() => {
+      router.push("/");
+    }, 300);
   }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50 flex items-center justify-center px-6">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8">
+
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">🐾</div>
 
@@ -44,6 +62,7 @@ router.push("/");
         </div>
 
         <form onSubmit={iniciarSesion} className="space-y-5">
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Correo electrónico
@@ -55,7 +74,8 @@ router.push("/");
               onChange={(e) => setCorreo(e.target.value)}
               placeholder="correo@ejemplo.com"
               required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
+              disabled={cargando}
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-100"
             />
           </div>
 
@@ -70,16 +90,19 @@ router.push("/");
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Tu contraseña"
               required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
+              disabled={cargando}
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-100"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-blue-500 py-3 font-semibold text-white hover:bg-blue-600 transition"
+            disabled={cargando}
+            className="w-full rounded-xl bg-blue-500 py-3 font-semibold text-white hover:bg-blue-600 transition disabled:bg-blue-300"
           >
-            Iniciar sesión
+            {cargando ? "Ingresando..." : "Iniciar sesión"}
           </button>
+
         </form>
 
         {mensaje && (
@@ -96,6 +119,7 @@ router.push("/");
             ¿No tienes una cuenta? Regístrate
           </a>
         </div>
+
       </div>
     </main>
   );
