@@ -11,38 +11,27 @@ export default function LoginPage() {
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [mensaje, setMensaje] = useState("");
-  const [cargando, setCargando] = useState(false);
 
   async function iniciarSesion(
     event: React.FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
-
     setMensaje("");
-    setCargando(true);
 
-    const { data, error } =
-      await supabase.auth.signInWithPassword({
-        email: correo,
-        password: password,
-      });
+    const { error } = await supabase.auth.signInWithPassword({
+      email: correo,
+      password: password,
+    });
 
     if (error) {
       console.error("ERROR LOGIN:", error);
       setMensaje(`Error: ${error.message}`);
-      setCargando(false);
       return;
     }
 
-    console.log("LOGIN CORRECTO:", data.user?.email);
+    console.log("LOGIN CORRECTO");
 
-    // Actualizamos la sesión antes de cambiar de página
-    router.refresh();
-
-    // Esperamos un momento para que Next.js/Supabase actualicen la sesión
-    setTimeout(() => {
-      router.push("/");
-    }, 300);
+    router.push("/");
   }
 
   return (
@@ -74,8 +63,7 @@ export default function LoginPage() {
               onChange={(e) => setCorreo(e.target.value)}
               placeholder="correo@ejemplo.com"
               required
-              disabled={cargando}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-100"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -90,17 +78,15 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Tu contraseña"
               required
-              disabled={cargando}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-100"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
           <button
             type="submit"
-            disabled={cargando}
-            className="w-full rounded-xl bg-blue-500 py-3 font-semibold text-white hover:bg-blue-600 transition disabled:bg-blue-300"
+            className="w-full rounded-xl bg-blue-500 py-3 font-semibold text-white hover:bg-blue-600 transition"
           >
-            {cargando ? "Ingresando..." : "Iniciar sesión"}
+            Iniciar sesión
           </button>
 
         </form>
