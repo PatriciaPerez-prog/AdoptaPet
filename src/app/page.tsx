@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,34 +6,78 @@ import { supabase } from "@/lib/supabase";
 
 export default function Home() {
   const router = useRouter();
+
   const [usuario, setUsuario] = useState<any>(null);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    async function obtenerUsuario() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    let activo = true;
 
-      if (!user) {
+    async function obtenerSesion() {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!activo) return;
+
+        if (!session?.user) {
+          setUsuario(null);
+          setCargando(false);
+          router.replace("/login");
+          return;
+        }
+
+        setUsuario(session.user);
+        setCargando(false);
+      } catch (error) {
+        console.error("ERROR OBTENIENDO SESIÓN:", error);
+        setUsuario(null);
+        setCargando(false);
         router.replace("/login");
-        return;
       }
-
-      setUsuario(user);
     }
 
-    obtenerUsuario();
+    obtenerSesion();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!activo) return;
+
+        if (session?.user) {
+          setUsuario(session.user);
+          setCargando(false);
+        } else {
+          setUsuario(null);
+          setCargando(false);
+          router.replace("/login");
+        }
+      }
+    );
+
+    return () => {
+      activo = false;
+      subscription.unsubscribe();
+    };
   }, [router]);
 
-  if (!usuario) {
+  if (cargando) {
     return (
       <main className="min-h-screen bg-blue-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-5xl mb-4">🐾</div>
-          <p className="text-gray-600">Cargando AdoptaPet...</p>
+          <p className="text-gray-600">
+            Cargando AdoptaPet...
+          </p>
         </div>
       </main>
     );
+  }
+
+  if (!usuario) {
+    return null;
   }
 
   return (
