@@ -14,6 +14,7 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
+
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => {
             request.cookies.set(name, value);
@@ -37,11 +38,13 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  if (
-    !user &&
-    pathname !== "/login" &&
-    pathname !== "/registro"
-  ) {
+  // No bloquear las páginas de autenticación
+  if (pathname === "/login" || pathname === "/registro") {
+    return response;
+  }
+
+  // Si no hay usuario, enviar al login
+  if (!user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
