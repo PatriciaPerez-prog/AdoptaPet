@@ -15,13 +15,26 @@ type Mascota = {
   personalidad: string[] | null;
 };
 
+type PerroAPI = {
+  id: string;
+  url: string;
+  width: number;
+  height: number;
+};
+
 export default function Home() {
   const router = useRouter();
 
   const [usuario, setUsuario] = useState<any>(null);
   const [cargando, setCargando] = useState(true);
+
   const [mascotas, setMascotas] = useState<Mascota[]>([]);
   const [cargandoMascotas, setCargandoMascotas] = useState(true);
+
+  // Estados para la API externa
+  const [perrosAPI, setPerrosAPI] = useState<PerroAPI[]>([]);
+  const [cargandoAPI, setCargandoAPI] = useState(true);
+  const [errorAPI, setErrorAPI] = useState(false);
 
   useEffect(() => {
     let activo = true;
@@ -50,6 +63,8 @@ export default function Home() {
           .select("*")
           .order("created_at", { ascending: false });
 
+        if (!activo) return;
+
         if (error) {
           console.error("ERROR OBTENIENDO MASCOTAS:", error);
           setMascotas([]);
@@ -60,6 +75,9 @@ export default function Home() {
         setCargandoMascotas(false);
       } catch (error) {
         console.error("ERROR OBTENIENDO SESIÓN:", error);
+
+        if (!activo) return;
+
         setUsuario(null);
         setCargando(false);
         setCargandoMascotas(false);
@@ -67,24 +85,56 @@ export default function Home() {
       }
     }
 
+    // API EXTERNA: THE DOG API
+    async function obtenerPerrosAPI() {
+      try {
+        setCargandoAPI(true);
+        setErrorAPI(false);
+
+        const respuesta = await fetch(
+          "https://api.thedogapi.com/v1/images/search?limit=6"
+        );
+
+        if (!respuesta.ok) {
+          throw new Error("No se pudo conectar con The Dog API");
+        }
+
+        const datos: PerroAPI[] = await respuesta.json();
+
+        if (!activo) return;
+
+        setPerrosAPI(datos);
+      } catch (error) {
+        console.error("ERROR OBTENIENDO DATOS DE LA API:", error);
+
+        if (!activo) return;
+
+        setErrorAPI(true);
+        setPerrosAPI([]);
+      } finally {
+        if (activo) {
+          setCargandoAPI(false);
+        }
+      }
+    }
+
     obtenerSesion();
+    obtenerPerrosAPI();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (!activo) return;
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!activo) return;
 
-        if (session?.user) {
-          setUsuario(session.user);
-          setCargando(false);
-        } else {
-          setUsuario(null);
-          setCargando(false);
-          router.replace("/login");
-        }
+      if (session?.user) {
+        setUsuario(session.user);
+        setCargando(false);
+      } else {
+        setUsuario(null);
+        setCargando(false);
+        router.replace("/login");
       }
-    );
+    });
 
     return () => {
       activo = false;
@@ -92,11 +142,12 @@ export default function Home() {
     };
   }, [router]);
 
+  // Pantalla de carga
   if (cargando) {
     return (
-      <main className="min-h-screen bg-blue-50 flex items-center justify-center">
+      <main className="flex min-h-screen items-center justify-center bg-blue-50">
         <div className="text-center">
-          <div className="text-5xl mb-4">🐾</div>
+          <div className="mb-4 text-5xl">🐾</div>
 
           <p className="text-gray-600">
             Cargando AdoptaPet...
@@ -113,25 +164,21 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-blue-50">
 
-      {/* ENCABEZADO */}
+      {/* =========================
+          ENCABEZADO
+      ========================== */}
       <header className="bg-white shadow-sm">
-
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
 
           <div className="flex items-center gap-2">
-
-            <span className="text-3xl">
-              🐾
-            </span>
+            <span className="text-3xl">🐾</span>
 
             <h1 className="text-2xl font-bold text-blue-600">
               AdoptaPet
             </h1>
-
           </div>
 
           <nav className="hidden items-center gap-8 md:flex">
-
             <a
               href="#inicio"
               className="text-gray-700 hover:text-blue-600"
@@ -147,6 +194,13 @@ export default function Home() {
             </a>
 
             <a
+              href="#api-perros"
+              className="text-gray-700 hover:text-blue-600"
+            >
+              Más perros
+            </a>
+
+            <a
               href="#nosotros"
               className="text-gray-700 hover:text-blue-600"
             >
@@ -159,7 +213,6 @@ export default function Home() {
             >
               Contacto
             </a>
-
           </nav>
 
           <div className="flex items-center gap-3">
@@ -180,12 +233,12 @@ export default function Home() {
             </button>
 
           </div>
-
         </div>
-
       </header>
 
-      {/* PRESENTACIÓN */}
+      {/* =========================
+          PRESENTACIÓN
+      ========================== */}
       <section
         id="inicio"
         className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:grid-cols-2"
@@ -245,7 +298,6 @@ export default function Home() {
           <div className="mt-8 grid grid-cols-3 gap-4">
 
             <div className="rounded-2xl bg-blue-50 p-4">
-
               <p className="text-2xl font-bold text-blue-600">
                 {mascotas.length}+
               </p>
@@ -253,11 +305,9 @@ export default function Home() {
               <p className="text-sm text-gray-600">
                 Mascotas
               </p>
-
             </div>
 
             <div className="rounded-2xl bg-blue-50 p-4">
-
               <p className="text-2xl font-bold text-blue-600">
                 80+
               </p>
@@ -265,11 +315,9 @@ export default function Home() {
               <p className="text-sm text-gray-600">
                 Adopciones
               </p>
-
             </div>
 
             <div className="rounded-2xl bg-blue-50 p-4">
-
               <p className="text-2xl font-bold text-blue-600">
                 24/7
               </p>
@@ -277,16 +325,16 @@ export default function Home() {
               <p className="text-sm text-gray-600">
                 Ayuda
               </p>
-
             </div>
 
           </div>
-
         </div>
 
       </section>
 
-      {/* MASCOTAS */}
+      {/* =========================
+          MASCOTAS DE SUPABASE
+      ========================== */}
       <section
         id="mascotas"
         className="bg-blue-50 py-16"
@@ -311,7 +359,7 @@ export default function Home() {
 
           </div>
 
-          {/* TARJETAS */}
+          {/* CARGANDO MASCOTAS */}
           {cargandoMascotas ? (
 
             <div className="mt-10 rounded-3xl bg-white p-10 text-center shadow-md">
@@ -413,7 +461,118 @@ export default function Home() {
 
       </section>
 
-      {/* NOSOTROS */}
+      {/* =========================
+          API EXTERNA - THE DOG API
+      ========================== */}
+      <section
+        id="api-perros"
+        className="bg-white py-16"
+      >
+
+        <div className="mx-auto max-w-6xl px-6">
+
+          <div className="text-center">
+
+            <p className="font-semibold text-blue-600">
+              🐶 Información adicional
+            </p>
+
+            <h2 className="mt-2 text-3xl font-bold text-gray-800">
+              Conoce otros perros
+            </h2>
+
+            <p className="mx-auto mt-4 max-w-2xl text-gray-600">
+              Estas imágenes son obtenidas dinámicamente desde
+              The Dog API, una API externa relacionada con nuestra
+              temática de mascotas.
+            </p>
+
+          </div>
+
+          {/* CARGANDO API */}
+          {cargandoAPI ? (
+
+            <div className="mt-10 rounded-3xl bg-blue-50 p-10 text-center shadow-md">
+
+              <div className="text-5xl">
+                🐾
+              </div>
+
+              <p className="mt-4 text-gray-600">
+                Cargando información de perros...
+              </p>
+
+            </div>
+
+          ) : errorAPI ? (
+
+            /* ERROR DE API */
+            <div className="mt-10 rounded-3xl bg-red-50 p-10 text-center shadow-md">
+
+              <div className="text-5xl">
+                ⚠️
+              </div>
+
+              <p className="mt-4 font-semibold text-red-600">
+                No pudimos cargar la información de perros.
+              </p>
+
+              <p className="mt-2 text-gray-600">
+                La API no está disponible en este momento.
+                Intenta nuevamente más tarde.
+              </p>
+
+            </div>
+
+          ) : (
+
+            /* DATOS DINÁMICOS DE LA API */
+            <div className="mt-10 grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+
+              {perrosAPI.map((perro) => (
+
+                <div
+                  key={perro.id}
+                  className="overflow-hidden rounded-3xl bg-blue-50 shadow-md transition hover:-translate-y-1 hover:shadow-xl"
+                >
+
+                  <div className="h-64 overflow-hidden">
+
+                    <img
+                      src={perro.url}
+                      alt="Perro obtenido desde The Dog API"
+                      className="h-full w-full object-cover"
+                    />
+
+                  </div>
+
+                  <div className="p-5 text-center">
+
+                    <h3 className="font-bold text-gray-800">
+                      Amigo peludo 🐾
+                    </h3>
+
+                    <p className="mt-2 text-sm text-gray-500">
+                      Imagen obtenida dinámicamente desde The Dog API
+                    </p>
+
+                  </div>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          )}
+
+        </div>
+
+      </section>
+
+      {/* =========================
+          NOSOTROS
+      ========================== */}
       <section
         id="nosotros"
         className="bg-white py-16"
@@ -440,7 +599,9 @@ export default function Home() {
 
       </section>
 
-      {/* CONTACTO */}
+      {/* =========================
+          CONTACTO
+      ========================== */}
       <section
         id="contacto"
         className="bg-blue-600 py-12 text-white"
@@ -468,4 +629,3 @@ export default function Home() {
     </main>
   );
 }
-
