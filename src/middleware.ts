@@ -38,23 +38,25 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // Páginas públicas
+  // Rutas públicas
   const paginasPublicas = [
     "/",
     "/login",
     "/registro",
     "/mascotas",
-    "/mascotas/max",
-    "/mascotas/luna",
-    "/mascotas/toby",
   ];
 
-  // Si la página es pública, dejar entrar a cualquier persona
-  if (paginasPublicas.includes(pathname)) {
+  // Permitir cualquier página individual de mascota:
+  // /mascotas/1
+  // /mascotas/2
+  // /mascotas/abc123
+  const esPaginaMascota = pathname.startsWith("/mascotas/");
+
+  if (paginasPublicas.includes(pathname) || esPaginaMascota) {
     return response;
   }
 
-  // Si intenta acceder a una página protegida sin iniciar sesión
+  // Las demás rutas requieren iniciar sesión
   if (!user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
